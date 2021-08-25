@@ -5,9 +5,11 @@
         <div class="content-box">
             <div class="token-symbol-title">
                 <div style="display: flex; justify-content: flex-start;flex-direction: row; align-items: center">
-                    <div class="symbol-title"></div>
+                    <div class="symbol-title-{state.lendingPair.tokenA.displaySymbol()}"></div>
                     <div id="head-title" style="font-size: 20px">Borrow</div> &nbsp;&nbsp;&nbsp;
-                    <div style="font-size: 20px">{state.lendingPair.tokenA.displaySymbol()}</div>
+                    <div style="font-size: 20px">
+                        {state.lendingPair.tokenA.displaySymbol()}
+                    </div>
                 </div>
                 <div>
                     <div style="float: right">
@@ -39,9 +41,9 @@
                                 </div>
 
                                 <div class="token-symbol-mkr" id="icon1_2">
-                                    <div class="symbol-mkr"></div>
+                                    <div class="symbol-{state.lendingPair.tokenA.displaySymbol()}"></div>
                                     <div></div>
-                                    <div>MKR</div>
+                                    <div>{state.lendingPair.tokenA.displaySymbol()}</div>
                                 </div>
                             </div>
                         </div>
@@ -78,9 +80,11 @@
                                 </div>
 
                                 <div class="token-symbol-mkr" id="icon2_2">
-                                    <div class="symbol-mkr"></div>
+                                    <div class="symbol-{state.lendingPair.tokenA.displaySymbol()}"></div>
                                     <div></div>
-                                    <div>MKR</div>
+                                    <div>
+                                        {state.lendingPair.tokenA.displaySymbol()}
+                                    </div>
                                 </div>
 
                             </div>
@@ -119,8 +123,8 @@
                         <div>{this.newBorrowed()} <span class="mkr-color">ETH</span></div>
                     </div>
                     <div class="mkr-assets-ratio">
-                        <div class="mkr-color">Radio</div>
-                        <div><span>2.93</span></div>
+                        <div class="mkr-color">Ratio</div>
+                        <div><span>{state.ratio}</span></div>
                     </div>
                     <div class="mkr-assets-reward">
                         <div class="mkr-color">Reward</div>
@@ -177,7 +181,8 @@
                 tokenABorrowLimit: new BigNumber(NaN),
                 tokenBBorrowLimit: new BigNumber(NaN),
                 newSafetyRatio: new BigNumber(NaN),
-                isLiquid: true
+                isLiquid: true,
+                ratio: 0
             },
             onMounted() {
                 isBuy = true;
@@ -266,6 +271,13 @@
             },
 
             async onBeforeUpdate() {
+
+                const totalUsdDebt = this.props.lendingPairs.pairs.map(p => p.usdTotalDebt).reduce((a, b) => a.plus(b))
+                const totalUsdSupply = this.props.lendingPairs.pairs.map(p => p.usdTotalSupply).reduce((a, b) => a.plus(b))
+                const totalUtilizationRatio = this.formatPercentage((totalUsdDebt / totalUsdSupply) * 100)
+                
+                this.state.ratio = totalUtilizationRatio
+
                 if (this.state.lendingPair === undefined) {
                     this.state.lendingPair = this.props.lendingPairs.find(this.props.pairAddress)
                 }

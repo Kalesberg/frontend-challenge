@@ -1507,7 +1507,115 @@ table td .icon {
     align-items: center;
 }
 
-.token-symbol-title .symbol-title {
+.token-symbol-title .symbol-title-MKR {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-LINK {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-DAI {
+    background-image: url("../images/img-dai.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-AAVE {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-AXS {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-WBTC {
+    background-image: url("../images/img-wbtc.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-COMP {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-MATIC {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-SNX {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-CRV {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-1INCH {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-PERP {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 30px;
+    width: 40px;
+    height: 40px;
+}
+
+.token-symbol-title .symbol-title-BOND {
     background-image: url("../images/img-M.png");
     background-position: left;
     background-repeat: no-repeat;
@@ -1539,7 +1647,7 @@ table td .icon {
 }
 
 
-.token-symbol-mkr .symbol-mkr {
+.token-symbol-mkr .symbol-MKR {
     background-image: url("../images/img-M.png");
     background-position: left;
     background-repeat: no-repeat;
@@ -1547,6 +1655,124 @@ table td .icon {
     width: 20px;
     height: 20px;
 }
+
+.token-symbol-mkr .symbol-LINK {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-UNI {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-DAI {
+    background-image: url("../images/img-dai.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-AAVE {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-AXS {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-WBTC {
+    background-image: url("../images/img-wbtc.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-COMP {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-MATIC {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-SNC {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-CRV {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-1INCH {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-PERP {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+.token-symbol-mkr .symbol-BOND {
+    background-image: url("../images/img-M.png");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: 15px;
+    width: 20px;
+    height: 20px;
+}
+
 
 .token-symbol-mkr .symbol-ether {
     background-image: url("../images/ethereum-logo.png");
