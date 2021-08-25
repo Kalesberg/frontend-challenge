@@ -1,0 +1,978 @@
+<borrow-simple>
+
+
+    <section class="app-area lending-pairs-view">
+        <div class="content-box">
+            <div class="token-symbol-title">
+                <div style="display: flex; justify-content: flex-start;flex-direction: row; align-items: center">
+                    <div class="symbol-title"></div>
+                    <div id="head-title" style="font-size: 20px">Borrow</div> &nbsp;&nbsp;&nbsp;
+                    <div style="font-size: 20px">{state.lendingPair.tokenA.displaySymbol()}</div>
+                </div>
+                <div>
+                    <div style="float: right">
+                        <a class="back-wrapper" onclick={ props.showLendingPairs }>
+                            <i class="icon icon-arrow-left"/>
+                            Back to lending pairs
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mkr-container">
+                <div class="mkr-box">
+                    <div class="borrow-box">
+                        <div class="borrow-box-header">
+                            <div class="borrow-box-header-left " id="btnbuy" onclick={onClickBuy}>
+                                BORROW
+                            </div>
+                            <div class="borrow-box-header-right unClickedButton" id="btnrepay" onclick={onClickRepay}>
+                                REPAY
+                            </div>
+                        </div>
+                        <div class="borrow-box-header-collateral">
+                            <div class="borrow-box-header-collateral-left" id="banner1">COLLATERAL</div>
+                            <div class="borrow-box-header-collateral-right">
+                                <div class="token-symbol-mkr" id="icon1_1">
+                                    <div class="symbol-ether"></div>
+                                    <div>ETH</div>
+                                    <div class="symbol-down-arrow"></div>
+                                </div>
+
+                                <div class="token-symbol-mkr" id="icon1_2">
+                                    <div class="symbol-mkr"></div>
+                                    <div></div>
+                                    <div>MKR</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--                        <div class="borrow-box-header-eth-input">-->
+                        <!--                            <div class="borrow-box-header-eth-input-field" contenteditable-->
+                        <!--                                 data-placeholder="Deposit ETH"></div>-->
+                        <!--                            <div class="borrow-box-header-eth-input-tag">Max</div>-->
+                        <!--                        </div>-->
+                        <div class="input-group">
+                            <input
+
+                                    id="input1"
+                                    placeholder="DEPOSIT "
+                                    type="number"
+                            >
+                            <label class="form-wrap-max-button" onclick={ setMaxTokenDeposit }>Max</label>
+
+                        </div>
+                        <div class="borrow-box-button" id="btndeposit">
+                            DEPOSIT
+                        </div>
+                        <div class="borrow-box-header-collateral">
+                            <div class="borrow-box-header-collateral-left" id="banner2">BORROW</div>
+                            <div class="borrow-box-header-collateral-right">
+
+                                <div class="token-symbol-mkr" id="icon2_1">
+                                    <div class="symbol-ether"></div>
+                                    <div>ETH</div>
+                                    <div class="symbol-down-arrow"></div>
+                                </div>
+
+                                <div class="token-symbol-mkr" id="icon2_2">
+                                    <div class="symbol-mkr"></div>
+                                    <div></div>
+                                    <div>MKR</div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <input
+
+                                    id="input2"
+                                    placeholder="Borrow "
+                                    type="number"
+                            >
+                            <label class="form-wrap-max-button" onclick={ setMaxTokenWithdraw }>Max</label>
+
+                        </div>
+
+                        <div class="borrow-box-button" id="btnborrow">
+                            BORROW
+                        </div>
+                    </div>
+                    <div class="borrow-repay">
+
+                    </div>
+                </div>
+                <div class="mkr-assets">
+                    <div class="mkr-assets-header">ASSETS</div>
+                    <div class="mkr-assets-collateral">
+                        <div class="mkr-color">Collateral
+                        </div>
+                        <div>23.9149 <span class="mkr-color">ETH</span></div>
+                    </div>
+                    <div class="mkr-assets-borrowed">
+                        <div class="mkr-color">Borrowed</div>
+                        <div>18.91 <span class="mkr-color">ETH</span></div>
+                    </div>
+                    <div class="mkr-assets-ratio">
+                        <div class="mkr-color">Radio</div>
+                        <div><span>2.93</span></div>
+                    </div>
+                    <div class="mkr-assets-reward">
+                        <div class="mkr-color">Reward</div>
+                        <div>301.46 <span class="mkr-color">WILD</span>&nbsp;&nbsp;&nbsp;<span>CLAIN</span></div>
+                    </div>
+                    <div class="mkr-assets-rates">Rates</div>
+                    <div class="mkr-assets-deposit-apr">
+                        <div class="mkr-color">Deposit APR (earn)</div>
+                        <div><span>14.9%</span></div>
+                    </div>
+                    <div class="mkr-assets-borrowed-apr">
+                        <div class="mkr-color">Borrow APR (pay)</div>
+                        <div><span>-14.9%</span></div>
+                    </div>
+                    <div class="mkr-assets-farming-apr">
+                        <div class="mkr-color">Farming APR (earn)</div>
+                        <div class="wild-reward">
+                            <div class="logo"></div>
+                            <div>2.93%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+
+        import {accountAddress} from "../../common/web3/Wallet";
+        import {LendingPair} from "../../common/pairs/LendingPair";
+        import {BigNumber} from "bignumber.js";
+
+        var isBuy = true;
+
+        export default {
+
+            state: {
+                lendingPair: undefined,
+                settingPair: false,
+                tokenADeposit: new BigNumber(NaN),
+                tokenBDeposit: new BigNumber(NaN),
+                tokenAWithdraw: new BigNumber(NaN),
+                tokenBWithdraw: new BigNumber(NaN),
+                tokenABorrowLimit: new BigNumber(NaN),
+                tokenBBorrowLimit: new BigNumber(NaN),
+                newSafetyRatio: new BigNumber(NaN),
+                isLiquid: true
+            },
+            onMounted() {
+                this.setBorrowLimit()
+                this.updateTokenBalance()
+            },
+
+            onClickBuy() {
+                isBuy = true;
+                document.getElementById("btnbuy").classList.remove("unClickedButton");
+                document.getElementById("btnrepay").classList.add("unClickedButton");
+
+                document.getElementById("btndeposit").innerText = "DEPOSIT";
+                document.getElementById("btnborrow").innerText = "BORROW";
+                document.getElementById("input1").setAttribute("placeholder", "Deposit " + this.state.lendingPair.tokenB.displaySymbol());
+                document.getElementById("input2").setAttribute("placeholder", "Borrow " + this.state.lendingPair.tokenA.displaySymbol());
+
+                document.getElementById("banner1").innerText = "COLLATERAL";
+                document.getElementById("banner2").innerText = "BORROW";
+
+                document.getElementById("icon1_1").style.display = "flex";
+                document.getElementById("icon1_2").style.display = "none";
+
+                document.getElementById("icon2_1").style.display = "none";
+                document.getElementById("icon2_2").style.display = "flex";
+                document.getElementById("head-title").innerText = "Borrow";
+
+                console.log(isBuy);
+            },
+            onClickRepay() {
+                isBuy = false;
+                document.getElementById("btnbuy").classList.add("unClickedButton");
+                document.getElementById("btnrepay").classList.remove("unClickedButton");
+
+                document.getElementById("btndeposit").innerText = "REPAY";
+                document.getElementById("btnborrow").innerText = "WITHDRAW";
+                document.getElementById("input1").setAttribute("placeholder", "Repay " + this.state.lendingPair.tokenA.displaySymbol());
+                document.getElementById("input2").setAttribute("placeholder", "Withdraw " + this.state.lendingPair.tokenB.displaySymbol());
+
+                document.getElementById("banner1").innerText = "DEBT";
+                document.getElementById("banner2").innerText = "COLLATERAL";
+
+                document.getElementById("icon1_1").style.display = "none";
+                document.getElementById("icon1_2").style.display = "flex";
+
+                document.getElementById("icon2_1").style.display = "flex";
+                document.getElementById("icon2_2").style.display = "none";
+
+                document.getElementById("head-title").innerText = "Repay";
+                console.log(isBuy);
+            },
+            onUpdated() {
+                document.getElementById("icon1_1").style.display = "flex";
+                document.getElementById("icon1_2").style.display = "none";
+
+                document.getElementById("icon2_1").style.display = "none";
+                document.getElementById("icon2_2").style.display = "flex";
+                document.getElementById("input1").setAttribute("placeholder", "Deposit " + this.state.lendingPair.tokenB.displaySymbol());
+                document.getElementById("input2").setAttribute("placeholder", "Borrow " + this.state.lendingPair.tokenA.displaySymbol());
+            },
+            onBeforeMount() {
+
+                this.state.lendingPair = this.props.lendingPairs.find(this.props.pairAddress)
+                if (this.state.lendingPair) {
+                    this.fetchLiquidity(this.state.lendingPair.tokenA.address)
+                }
+            },
+
+            async onBeforeUpdate() {
+                if (this.state.lendingPair === undefined) {
+                    this.state.lendingPair = this.props.lendingPairs.find(this.props.pairAddress)
+                }
+                if (!this.state.settingPair && this.state.lendingPair === undefined && accountAddress !== undefined) {
+                    let that = this
+                    this.state.settingPair = true
+                    let newLendingPair = await LendingPair.buildPairFromAddress(this.props.pairAddress)
+                    newLendingPair
+                        .refresh(accountAddress, that.props.tokenList)
+                        .then(e => that.state.lendingPair = newLendingPair)
+                        .then(e => that.update())
+                        .then(e => that.props.lendingPairs.pairs.push(newLendingPair))
+                }
+                this.updateTokenBalance()
+
+                if (isBuy) {
+                    if (this.state.tokenADeposit.isNaN()) {
+                        this.clearTokenDeposit();
+                    }
+                    if (this.state.tokenAWithdraw.isNaN()) {
+                        this.clearTokenWithdraw();
+                    }
+                } else {
+                    if (this.state.tokenBDeposit.isNaN()) {
+                        this.clearTokenDeposit();
+                    }
+                    if (this.state.tokenBWithdraw.isNaN()) {
+                        this.clearTokenWithdraw();
+                    }
+                }
+
+            },
+
+            setTokenADeposit(amount) {
+
+                this.state.newSafetyRatio =
+                    this.state.lendingPair.simulateSafetyRate(
+                        amount,
+                        new BigNumber(0),
+                        true
+                    )
+
+                this.update({
+                    tokenADeposit: amount,
+                    tokenBDeposit: new BigNumber(NaN),
+                    tokenAWithdraw: new BigNumber(NaN),
+                    tokenBWithdraw: new BigNumber(NaN),
+                })
+            },
+
+            setTokenAWithdraw(amount) {
+
+                this.state.newSafetyRatio =
+                    this.state.lendingPair.simulateSafetyRate(
+                        amount,
+                        new BigNumber(0),
+                        false
+                    )
+
+                this.update({
+                    tokenADeposit: new BigNumber(NaN),
+                    tokenBDeposit: new BigNumber(NaN),
+                    tokenAWithdraw: amount,
+                    tokenBWithdraw: new BigNumber(NaN),
+                })
+            },
+
+            setTokenBDeposit(amount) {
+
+                this.state.newSafetyRatio =
+                    this.state.lendingPair.simulateSafetyRate(
+                        new BigNumber(0),
+                        amount,
+                        true
+                    )
+
+                this.update({
+                    tokenADeposit: new BigNumber(NaN),
+                    tokenBDeposit: amount,
+                    tokenAWithdraw: new BigNumber(NaN),
+                    tokenBWithdraw: new BigNumber(NaN),
+                })
+            },
+
+            setTokenBWithdraw(amount) {
+
+                this.state.newSafetyRatio =
+                    this.state.lendingPair.simulateSafetyRate(
+                        new BigNumber(0),
+                        amount,
+                        false
+                    )
+
+                this.update({
+                    tokenADeposit: new BigNumber(NaN),
+                    tokenBDeposit: new BigNumber(NaN),
+                    tokenAWithdraw: new BigNumber(NaN),
+                    tokenBWithdraw: amount,
+                })
+            },
+
+            setABorrowLimit(limit) {
+                this.update({tokenABorrowLimit: limit, tokenBBorrowLimit: new BigNumber(NaN)})
+            },
+
+            setBBorrowLimit(limit) {
+                this.update({tokenABorrowLimit: new BigNumber(NaN), tokenBBorrowLimit: limit})
+            },
+
+            formatDepositLimitMessage(token, limit) {
+                let supply = BigNumber.min(token.lpTotalSupply, limit)
+                return `${this.formatNumber(supply)} ${token.symbol} (max: ${this.formatNumber(new BigNumber(limit))} ${token.symbol})`
+            },
+
+            showSafetyWarning() {
+                return false;
+                // let minSafety = 1.25
+                // console.log(parseFloat(this.state.newSafetyRatio))
+
+                // return (
+                // 	(
+                // 		this.state.newSafetyRatio <= minSafety
+                // 	) && (
+                // 		this.state.tokenADeposit.toFixed() === "NaN" &&
+                // 		this.state.tokenBDeposit.toFixed() === "NaN"
+                // 	)
+                // )
+            },
+
+            async fetchLiquidity(tokenAddress) {
+                const minETH = 500;
+
+                let res = await fetch("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2", {
+                    method: "post",
+
+                    body: JSON.stringify({
+                        query: `{
+							tokens(where: { id: "${tokenAddress}"}) {
+								derivedETH
+								totalLiquidity
+							}
+						}`,
+                    }),
+
+                    headers: {"Content-Type": "application/json"},
+                })
+
+                let data = (await res.json()).data.tokens[0]
+
+                if (data === undefined) {
+                    this.state.isLiquid = false;
+                } else {
+                    let liquidityETH = data.derivedETH * data.totalLiquidity;
+                    this.state.isLiquid = liquidityETH >= minETH;
+                }
+
+                this.update()
+            },
+
+            displayedSafetyRatio() {
+                if (this.state.newSafetyRatio.isNaN()) {
+                    return this.state.lendingPair.safetyRatio
+                }
+                return this.state.newSafetyRatio
+            },
+
+            netAPR() {
+                let tokenA = this.state.lendingPair.tokenA
+                let tokenB = this.state.lendingPair.tokenB
+
+                let supplyInterestA = (tokenA.supplyRate * tokenA.usdSupplied / 100);
+                let supplyInterestB = (tokenB.supplyRate * tokenB.usdSupplied / 100);
+
+                let borrowInterestA = (tokenA.borrowRate * tokenA.usdDebt / 100);
+                let borrowInterestB = (tokenB.borrowRate * tokenB.usdDebt / 100);
+
+                let supplyRewardA = (tokenA.supplyApr * tokenA.usdSupplied / 100);
+                let supplyRewardB = (tokenB.supplyApr * tokenB.usdSupplied / 100);
+
+                let borrowRewardA = (tokenA.borrowApr * tokenA.usdDebt / 100);
+                let borrowRewardB = (tokenB.borrowApr * tokenB.usdDebt / 100);
+
+                let credit = supplyInterestA + supplyInterestB + supplyRewardA + supplyRewardB + borrowRewardA + borrowRewardB
+                let debit = borrowInterestA + borrowInterestB
+                let profit = credit - debit
+
+                let supplyUSD = tokenA.usdSupplied.plus(tokenB.usdSupplied)
+
+                return new BigNumber(profit / supplyUSD * 100)
+
+                // earning supply interest rate 150% on $20k (10 ETH)   = + $30k
+                // earning supply reward rate    90% on $20k (10 ETH)   = + $18k
+                // earning borrow reward rate   600% on $10k (10k DAI)  = + $60k
+                // paying borrow interest rate  200% on $10k (10k DAI)  = - $20k
+                // earning total = $30k + $18k  + $60k - $20k = $88k
+
+                // mySupplyUSD = $20k (10 ETH)
+                // netEarnUSD = $88k
+                // netAPR = $88k / $20k * 100 = 440%
+            }
+            ,
+
+
+            updateTokenDeposit(e) {
+                this.clearTokenWithdraw()
+                isBuy ? this.setTokenADeposit(new BigNumber(e.target.value)) : this.setTokenBDeposit(new BigNumber(e.target.value));
+                this.setBorrowLimit()
+            },
+
+            updateTokenWithdraw(e) {
+                this.clearTokenDeposit()
+                isBuy ? this.setTokenAWithdraw(new BigNumber(e.target.value)) : this.setTokenBWithdraw(new BigNumber(e.target.value));
+                if (isBuy) {
+                    if (this.state.tokenAWithdraw.isGreaterThan(this.state.lendingPair.tokenA.reserve)) {
+                        document.getElementById(`reserve-${this.state.lendingPair.tokenA.symbol}`).classList.add("warning-text")
+                    } else {
+                        document.getElementById(`reserve-${this.state.lendingPair.tokenA.symbol}`).classList.remove("warning-text")
+                    }
+                } else {
+                    if (this.state.tokenBWithdraw.isGreaterThan(this.state.lendingPair.tokenB.reserve)) {
+                        document.getElementById(`reserve-${this.state.lendingPair.tokenB.symbol}`).classList.add("warning-text")
+                    } else {
+                        document.getElementById(`reserve-${this.state.lendingPair.tokenB.symbol}`).classList.remove("warning-text")
+                    }
+                }
+
+                this.setBorrowLimit()
+            },
+
+            setMaxTokenDeposit() {
+                isBuy ? this.setTokenADeposit(this.getBalance(this.state.lendingPair.tokenA)) : this.setTokenBDeposit(this.getBalance(this.state.lendingPair.tokenB));
+                if (isBuy)
+                    document.getElementById(`deposit-${this.state.lendingPair.tokenA.symbol}`).value = this.state.tokenADeposit.toString(10);
+                else
+                    document.getElementById(`deposit-${this.state.lendingPair.tokenB.symbol}`).value = this.state.tokenBDeposit.toString(10);
+                this.setBorrowLimit()
+            },
+
+            setMaxTokenWithdraw() {
+                if (isBuy) {
+                    this.setTokenAWithdraw(this.state.lendingPair.tokenA.supplied)
+                    document.getElementById(`withdraw-${this.state.lendingPair.tokenA.symbol}`).value = this.state.lendingPair.tokenA.supplied.toString(10);
+                    this.setBorrowLimit()
+                } else {
+                    this.setTokenAWithdraw(this.state.lendingPair.tokenB.supplied)
+                    document.getElementById(`withdraw-${this.state.lendingPair.tokenB.symbol}`).value = this.state.lendingPair.tokenB.supplied.toString(10);
+                    this.setBorrowLimit()
+                }
+
+            },
+
+            async deposit(e, token, amount) {
+                if (amount.isGreaterThan(0)) {
+                    await this.state.lendingPair.contract.deposit(
+                        accountAddress,
+                        Erc20Token.convertToETHIfNeeded(token),
+                        amount
+                    )
+                    await this.updateLendingPairInfo()
+                    if (isBuy) {
+                        this.state.setTokenAWithdraw(new BigNumber(NaN))
+                        this.state.setTokenADeposit(new BigNumber(NaN))
+
+                    } else {
+                        this.props.setTokenBWithdraw(new BigNumber(NaN))
+                        this.props.setTokenBDeposit(new BigNumber(NaN))
+                    }
+
+                }
+            },
+
+            async withdraw(e, token, amount) {
+
+                await this.updateLendingPairInfo()
+
+                if (!this.showSafetyWarning() &&
+                    amount.isGreaterThan(0) &&
+                    amount.isLessThanOrEqualTo(token.reserve)) {
+                    await this.state.lendingPair.contract.withdraw(
+                        accountAddress,
+                        Erc20Token.convertToETHIfNeeded(token),
+                        amount
+                    )
+                    await this.updateLendingPairInfo()
+
+                    if (isBuy) {
+                        this.state.setTokenAWithdraw(new BigNumber(NaN))
+                        this.state.setTokenADeposit(new BigNumber(NaN))
+
+                    } else {
+                        this.props.setTokenBWithdraw(new BigNumber(NaN))
+                        this.props.setTokenBDeposit(new BigNumber(NaN))
+                    }
+                }
+            },
+
+            async updateLendingPairInfo() {
+                await this.state.lendingPair.refresh(accountAddress, this.props.tokenList)
+                this.update()
+            },
+
+            newSupplied() {
+                if (isBuy) {
+                    let original = this.state.lendingPair.tokenA.supplied
+                    let borrowed = this.state.lendingPair.tokenA.debt
+
+                    let deposit = BigNumber.max(this.normalize(this.state.tokenADeposit).minus(borrowed), new BigNumber(0))
+                    let withdraw = BigNumber.min(this.normalize(this.state.tokenAWithdraw), original)
+
+                    return this.displayNewValue(original, deposit.minus(withdraw))
+                } else {
+                    let original = this.state.lendingPair.tokenB.supplied
+                    let borrowed = this.state.lendingPair.tokenB.debt
+
+                    let deposit = BigNumber.max(this.normalize(this.state.tokenBDeposit).minus(borrowed), new BigNumber(0))
+                    let withdraw = BigNumber.min(this.normalize(this.state.tokenBWithdraw), original)
+
+                    return this.displayNewValue(original, deposit.minus(withdraw))
+                }
+
+            },
+
+            newBorrowed() {
+                if (isBuy) {
+                    let supplied = this.state.lendingPair.tokenA.supplied
+                    let borrowed = this.state.lendingPair.tokenA.debt
+
+                    let repay = BigNumber.min(this.normalize(this.state.tokenADeposit), borrowed)
+                    let extraBorrow = BigNumber.min(supplied.minus(this.normalize(this.state.tokenAWithdraw)), new BigNumber(0)).negated()
+
+                    return this.displayNewValue(borrowed, extraBorrow.minus(repay))
+                } else {
+                    let supplied = this.state.lendingPair.tokenB.supplied
+                    let borrowed = this.state.lendingPair.tokenB.debt
+
+                    let repay = BigNumber.min(this.normalize(this.state.tokenBDeposit), borrowed)
+                    let extraBorrow = BigNumber.min(supplied.minus(this.normalize(this.state.tokenBWithdraw)), new BigNumber(0)).negated()
+
+                    return this.displayNewValue(borrowed, extraBorrow.minus(repay))
+                }
+            },
+
+            showBorrowLimit() {
+                if (isBuy)
+                    return this.state.lendingPair.tokenABorrowLimit.isGreaterThan(0.01) ||
+                        this.state.tokenABorrowLimit.isGreaterThan(0.01)
+                else
+                    return this.state.lendingPair.tokenBBorrowLimit.isGreaterThan(0.01) ||
+                        this.state.tokenBBorrowLimit.isGreaterThan(0.01)
+            },
+
+            showDepositCap() {
+                if (isBuy)
+                    return this.state.lendingPair.tokenA.depositCapLimit.isGreaterThan(0)
+                else
+                    return this.state.lendingPair.tokenB.depositCapLimit.isGreaterThan(0)
+            },
+
+            showBorrowCap() {
+                if (isBuy)
+                    return this.state.lendingPair.tokenA.borrowCapLimit.isGreaterThan(0)
+                else
+                    return this.state.lendingPair.tokenB.borrowCapLimit.isGreaterThan(0)
+            },
+
+            newBorrowLimit() {
+                if (isBuy) {
+                    let original = this.state.lendingPair.tokenABorrowLimit;
+                    let newBorrowLimit = this.state.tokenABorrowLimit;
+
+                    return this.displayNewValue(original, newBorrowLimit.minus(original))
+                } else {
+                    let original = this.state.lendingPair.tokenBBorrowLimit;
+                    let newBorrowLimit = this.state.tokenBBorrowLimit;
+
+                    return this.displayNewValue(original, newBorrowLimit.minus(original))
+                }
+
+            },
+
+            async setBorrowLimit() {
+                let lpBalance = isBuy ? this.state.lendingPair.tokenA.supplied : this.state.lendingPair.tokenB.supplied;
+                let borrowed = isBuy ? this.state.lendingPair.tokenA.debt : this.state.lendingPair.tokenA.debt
+
+                let deposit = BigNumber.max(this.normalize(isBuy ? this.state.tokenADeposit : this.state.tokenBDeposit).minus(borrowed), new BigNumber(0))
+                let withdraw = BigNumber.min(this.normalize(isBuy ? this.state.tokenAWithdraw : this.state.tokenBWithdraw), lpBalance)
+
+                let newLpBalance = lpBalance.plus(deposit).minus(withdraw)
+
+                let otherToken =
+                    isBuy ? this.state.lendingPair.tokenB : this.state.lendingPair.tokenA;
+
+                isBuy ? this.setBBorrowLimit(
+                        this.state.lendingPair.borrowLimit(
+                            this.state.lendingPair.tokenA,
+                            otherToken,
+                            newLpBalance)
+                    ) :
+                    this.setABorrowLimit(
+                        this.state.lendingPair.borrowLimit(
+                            this.state.lendingPair.tokenB,
+                            otherToken,
+                            newLpBalance
+                        )
+                    )
+                ;
+
+
+            },
+
+            newReserve() {
+                let original = isBuy ? this.state.lendingPair.tokenA.reserve : this.state.lendingPair.tokenB.reserve;
+                let deposit = this.normalize(isBuy ? this.state.tokenADeposit : this.state.tokenBDeposit);
+                let withdraw = this.normalize(isBuy ? this.state.tokenAWithdraw : this.state.tokenBWithdraw);
+
+                return this.displayNewValue(original, deposit.minus(withdraw))
+            },
+
+            clearTokenDeposit() {
+                // document.getElementById(`deposit-${isBuy ? this.state.lendingPair.tokenA.symbol : this.state.lendingPair.tokenB.symbol}`).value = null
+            },
+
+            clearTokenWithdraw() {
+                //    document.getElementById(`withdraw-${isBuy ? this.state.lendingPair.tokenA.symbol : this.state.lendingPair.tokenB.symbol}`).value = null
+                //     document.getElementById(`reserve-${isBuy ? this.state.lendingPair.tokenA.symbol : this.state.lendingPair.tokenB.symbol}`).classList.remove("warning-text")
+            },
+
+            normalize(value) {
+                return value.isNaN() ? new BigNumber(0) : value
+            },
+
+            displayNewValue(current, delta) {
+                let original = current
+                let newValue = original.plus(delta)
+
+                if (!newValue.isNaN() && !original.isEqualTo(newValue)) {
+                    return this.moneyFormat(newValue)
+                } else {
+                    return this.moneyFormat(original)
+                }
+
+            },
+
+            getBalance(token) {
+                let t = this.getToken(token)
+                if (t) {
+                    return t.balance
+                }
+                return new BigNumber(NaN)
+            },
+
+            updateTokenBalance() {
+                let token = this.getToken(isBuy ? this.state.lendingPair.tokenA : this.state.lendingPair.tokenB)
+                if (token) {
+                    this.props.tokenList.refreshTokenInfo(token, accountAddress)
+                }
+            },
+
+            getToken(token) {
+                let t = undefined
+                if (token.symbol === "WETH") {
+                    t = this.props.tokenList.tokens.find(t => t.symbol === "ETH")
+                } else {
+                    t = this.props.tokenList.tokens.find(t => t.address.toLowerCase() === token.address.toLowerCase())
+                }
+                return t
+            },
+            async claim() {
+                await this.state.lendingPair.contract.accrueAccount(accountAddress)
+                await this.state.lendingPair.refresh(accountAddress, this.props.tokenList)
+                this.update()
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            font-size: 14px;
+        }
+
+
+        .input-group {
+            display: flex;
+            flex-direction: row;
+            padding: 0.7rem;
+            align-items: center;
+        }
+
+        .input-group input {
+            color: #F7F7F7;
+            padding: 11px 53px 11px 13px;
+            width: 100%;
+            font-size: 13px;
+            line-height: 13px;
+            background: #292c3c;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+            height: 40px;
+
+        }
+
+        .input-group label {
+            color: #F7F7F7;
+            padding: 11px;
+
+            /*width: 100%;*/
+            font-size: 13px;
+            line-height: 13px;
+            background: #292c3c;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            height: 40px;
+            text-align: center;
+
+        }
+
+        .simple-title {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .mkr-box {
+            border: 1px solid #2D303D;
+            width: 50%;
+            height: 100%;
+        }
+
+
+        .mkr-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            height: 50vh;
+            margin-top: 2rem;
+        }
+
+        .borrow-title {
+            font-size: 14px;
+            color: #F7F7F7;
+            padding: 10px 45px;
+            display: flex;
+            align-items: center;
+        }
+
+        .borrow-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: stretch;
+        }
+
+        .borrow-box-header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between
+        }
+
+        .borrow-box-header-left {
+            text-align: center;
+            flex: 1;
+            padding: 0.7rem;
+            font-size: 14px
+        }
+
+        .borrow-box-header-right {
+
+            flex: 1;
+            text-align: center;
+            padding: 0.7rem;
+            /*color: #6E7084;*/
+            font-size: 14px
+        }
+
+        .unClickedButton {
+            background-color: #474D65;
+            border-radius: 3px;
+            color: #6E7084;
+        }
+
+        .borrow-box-header-collateral {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .borrow-box-header-collateral-left {
+            color: #6E7084;
+            font-size: 12px;
+            padding: 0.7rem;
+        }
+
+        .borrow-box-header-collateral-right {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 12px;
+            padding: 0.7rem;
+            /*margin-top: 1rem;*/
+
+        }
+
+        .borrow-box-header-collateral-text {
+            text-align: center;
+        }
+
+        .borrow-box-header-eth-input-field:empty:not(:focus):before {
+            content: attr(data-placeholder);
+            color: rgb(172, 172, 172);
+            width: 70%;
+        }
+
+        .borrow-box-header-eth-input {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 3px;
+            background-color: #232634;
+            padding: 0.7rem;
+            margin-left: 0.7rem;
+            margin-right: 0.7rem;
+
+        }
+
+        .borrow-box-header-eth-input-tag {
+            color: #6E6F84;
+        }
+
+        .borrow-box-button {
+            /*display: flex;*/
+            color: #F7F7F7;
+            background-color: #474D65;
+            border-radius: 3px;
+            text-align: center;
+            padding: 0.7rem;
+            margin-left: 0.7rem;
+            margin-right: 0.7rem;
+            margin-top: 1rem;
+        }
+
+        .mkr-assets {
+            display: flex;
+            flex-direction: column;
+            /*border: 1px solid #2D303D;*/
+            width: 50%;
+            height: 100%;
+            margin-left: 3rem;
+            color: #C2C3D5
+        }
+
+        .mkr-assets-header {
+            color: #C2C3D5;
+            text-align: left;
+        }
+
+        .mkr-assets-collateral {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            padding-top: 0.5rem;
+            border-bottom: 1px solid #2D303D;
+            margin-top: 0.7rem;
+        }
+
+        .mkr-assets-borrowed {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            padding-top: 0.5rem;
+            border-bottom: 1px solid #2D303D;
+            margin-top: 0.7rem;
+        }
+
+        .mkr-assets-ratio {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            padding-top: 0.5rem;
+            border-bottom: 1px solid #2D303D;
+            margin-top: 0.7rem;
+        }
+
+        .mkr-assets-reward {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            padding-top: 0.5rem;
+            margin-top: 0.7rem;
+            /*border-bottom: 1px solid #2D303D;*/
+        }
+
+        .mkr-assets-rates {
+            color: #C2C3D5;
+            text-align: left;
+            margin-top: 0.7rem;
+        }
+
+        .mkr-assets-deposit-apr {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            padding-top: 0.5rem;
+            border-bottom: 1px solid #2D303D;
+            margin-top: 0.7rem;
+        }
+
+        .mkr-assets-borrowed-apr {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            padding-top: 0.5rem;
+            border-bottom: 1px solid #2D303D;
+            margin-top: 0.7rem;
+        }
+
+        .mkr-assets-farming-apr {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-bottom: 0.5rem;
+            padding-top: 0.5rem;
+            margin-top: 0.7rem;
+            /*border-bottom: 1px solid #2D303D;*/
+        }
+
+
+        .mkr-color {
+            color: #6E7084;
+        }
+
+
+    </style>
+
+</borrow-simple>

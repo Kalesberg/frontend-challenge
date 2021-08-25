@@ -2,6 +2,12 @@
 
     <main>
         <nav-bar/>
+
+        <div class="address-header">
+            <div class="address-icon"></div>
+            <div class="address">0xa618...66dd</div>
+        </div>
+
         <div id="content">
 
             <section class="menu-button-area">
@@ -12,45 +18,57 @@
 
             <router>
                 <route path="/#/pair/:pairAddress">
-                    <lending-expand
-                            tokenList={ state.tokenList }
-                            lendingPairs={ state.lendingPairs }
-                            pairAddress={ route.params.pairAddress }
-                            showLendingPairs={ showLendingPairs }
-                    />
+                    <!--                    <lending-expand-->
+                    <!--                            lendingPairs={ state.lendingPairs }-->
+                    <!--                            pairAddress={ route.params.pairAddress }-->
+                    <!--                            showLendingPairs={ showLendingPairs }-->
+                    <!--                            tokenList={ state.tokenList }-->
+                    <!--                    />-->
+                    <borrow-simple
+                            lendingPairs={state.lendingPairs}
+                            pairAddress={route.params.pairAddress}
+                            showLendingPairs={showLendingPairs}
+                            tokenList={state.tokenList}/>
+                    <!--                    <borrow-simple-->
+                    <!--                            lendingPairs={ state.lendingPairs }>-->
+                    <!--                        pairAddress={ route.params.pairAddress }-->
+                    <!--                        showLendingPairs={ showLendingPairs }-->
+                    <!--                        tokenList={ state.tokenList }-->
+                    <!--                        />-->
+
                 </route>
                 <route if={ this.xWildEnabled() }
-                        path="/#/stake"
+                       path="/#/stake"
                 >
                     <stake
-                        stakingContract={ state.stakingContract }
-                        feeConverterContract={ state.feeConverterContract }
+                            feeConverterContract={ state.feeConverterContract }
+                            stakingContract={ state.stakingContract }
                     />
                 </route>
                 <route if={ this.farmingEnabled() }
-                         path="/#/farm"
+                       path="/#/farm"
                 >
                     <farm
-                        tokenList={state.tokenList}
-                        lendingPairs={ state.lendingPairs }
-                        farmingLpTokens={ state.farmingLpTokens }
-                        selectPair={ selectPair }
+                            farmingLpTokens={ state.farmingLpTokens }
+                            lendingPairs={ state.lendingPairs }
+                            selectPair={ selectPair }
+                            tokenList={state.tokenList}
                     />
                 </route>
                 <route path="/#/vaults">
                     <vaults-view
-                        tokenList={ state.tokenList }
-                        vaults={ state.vaults }
+                            tokenList={ state.tokenList }
+                            vaults={ state.vaults }
                     />
                 </route>
                 <route path="/#/vaults/:vaultAddress">
                     <vault
-                        vaults={ state.vaults }
-                        vaultAddress={ route.params.vaultAddress }
+                            vaultAddress={ route.params.vaultAddress }
+                            vaults={ state.vaults }
                     />
                 </route>
                 <route if={ this.activateFullFeatures() }
-                         path="/#/create-pair"
+                       path="/#/create-pair"
                 >
                     <create-pair
                             lendingPairs={ state.lendingPairs }
@@ -62,12 +80,32 @@
                             lendingPairs={ state.lendingPairs }
                             selectPair={ selectPair }
                     />
+
+
                 </route>
             </router>
         </div>
 
     </main>
 
+    <style>
+
+        .address-header {
+            position: fixed;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+            height: 20%;
+            border-bottom: 1px solid #6E6F84;
+            padding-top: 22px;
+            padding-bottom: 22px;
+        }
+
+        .address {
+            margin-right: 2rem;
+        }
+    </style>
     <script>
         import NavBar from '../navbar/index.riot'
         import LendingPairsView from '../lendingPairsView/index.riot'
@@ -77,15 +115,16 @@
         import Vault from '../vault/index.riot'
         import CreatePair from '../createPair/index.riot'
         import VaultsView from '../vaultsView/index.riot'
-        import { LendingPairs } from "../../common/pairs/LendingPairs";
-        import { accountAddress, initWallet } from '../../common/web3/Wallet'
-        import { Router, Route, setBase, router } from "@riotjs/route";
-        import { StakingContract } from "../../common/contracts/StakingContract";
-        import { TokenList } from "../../common/tokens/TokenList";
-        import { FeeConverter } from "../../common/contracts/FeeConverter";
-        import { FarmingToken } from "../../common/pairs/FarmingToken";
-        import { VaultContract } from "../../common/contracts/VaultContract";
-        import { Vaults } from "../../common/vaults/Vaults";
+        import BorrowSimple from '../borrowsimple/index.riot'
+        import {LendingPairs} from "../../common/pairs/LendingPairs";
+        import {accountAddress, initWallet} from '../../common/web3/Wallet'
+        import {Router, Route, setBase, router} from "@riotjs/route";
+        import {StakingContract} from "../../common/contracts/StakingContract";
+        import {TokenList} from "../../common/tokens/TokenList";
+        import {FeeConverter} from "../../common/contracts/FeeConverter";
+        import {FarmingToken} from "../../common/pairs/FarmingToken";
+        import {VaultContract} from "../../common/contracts/VaultContract";
+        import {Vaults} from "../../common/vaults/Vaults";
 
         export default {
             components: {
@@ -98,7 +137,8 @@
                 VaultsView,
                 CreatePair,
                 Route,
-                Router
+                Router,
+                BorrowSimple
             },
             state: {
                 tokenList: new TokenList(),
@@ -129,6 +169,7 @@
 
             },
             showLendingPairs() {
+                console.log("you clicked me");
                 router.push(`/#`)
             },
             selectPair(pair) {
