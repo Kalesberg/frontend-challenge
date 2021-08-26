@@ -585,11 +585,11 @@
             setMaxTokenDeposit() {
                 console.log("tokenA : ", this.state.lendingPair.tokenA);
                 console.log("tokenB : ", this.state.lendingPair.tokenB);
-                isBuy ? this.setTokenADeposit(this.getBalance(this.state.lendingPair.tokenA)) : this.setTokenBDeposit(this.getBalance(this.state.lendingPair.tokenB));
+                isBuy ? this.setTokenBDeposit(this.getBalance(this.state.lendingPair.tokenB)) : this.setTokenAWithdraw(this.state.lendingPair.tokenA.supplied);
                 if (isBuy)
-                    document.getElementById('input1').value = this.state.tokenADeposit.toString(10);
-                else
                     document.getElementById('input1').value = this.state.tokenBDeposit.toString(10);
+                else
+                    document.getElementById('input1').value = this.state.lendingPair.tokenA.supplied.toString(10);
                 this.setBorrowLimit()
             },
 
@@ -597,12 +597,12 @@
                 console.log("tokenA : ", this.state.lendingPair.tokenA);
                 console.log("tokenB : ", this.state.lendingPair.tokenB);
                 if (isBuy) {
-                    this.setTokenAWithdraw(this.state.lendingPair.tokenA.supplied)
-                    document.getElementById('input2').value = this.state.lendingPair.tokenA.supplied.toString(10);
-                    this.setBorrowLimit();
-                } else {
                     this.setTokenBWithdraw(this.state.lendingPair.tokenB.supplied)
                     document.getElementById('input2').value = this.state.lendingPair.tokenB.supplied.toString(10);
+                    this.setBorrowLimit();
+                } else {
+                    this.setTokenADeposit(this.getBalance(this.state.lendingPair.tokenA))
+                    document.getElementById('input2').value = this.state.tokenADeposit.toString(10);
                     this.setBorrowLimit();
                 }
 
