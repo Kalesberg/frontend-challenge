@@ -2,7 +2,7 @@
 
 
     <section class="app-area lending-pairs-view">
-        <div class="content-box">
+        <div class="content-box" if={ state.lendingPair !== undefined }>
             <div class="token-symbol-title">
                 <div style="display: flex; justify-content: flex-start;flex-direction: row; align-items: center">
                     <div class="symbol-title-{state.lendingPair.tokenA.displaySymbol()}"></div>
@@ -116,48 +116,50 @@
                     <div class="mkr-assets-collateral">
                         <div class="mkr-color">Collateral
                         </div>
-                        <div>{this.newSupplied()} <span class="mkr-color">ETH</span></div>
+                        <div><span id="collateral-value">0&nbsp</span> <span class="mkr-color">ETH</span></div>
                     </div>
                     <div class="mkr-assets-borrowed">
                         <div class="mkr-color">Borrowed</div>
-                        <div>{this.newBorrowed()} <span class="mkr-color">ETH</span></div>
+                        <div><span id="borrowed-value">0&nbsp</span> <span class="mkr-color">ETH</span></div>
                     </div>
                     <div class="mkr-assets-ratio">
                         <div class="mkr-color">Ratio</div>
-                        <div><span>{state.ratio}</span></div>
+                        <div><span id="ratio-value">{this.displayedSafetyRatio()}</span></div>
                     </div>
                     <div class="mkr-assets-reward">
                         <div class="mkr-color">Reward</div>
                         <div>
-                            {this.moneyFormat(isBuy ? state.lendingPair.tokenA.pendingTotalReward : state.lendingPair.tokenB.pendingTotalReward)}
-                            <span class="mkr-color">WILD</span>&nbsp;&nbsp;&nbsp;<span>CLAIN</span></div>
+                            <span id="reward-value">0&nbsp;</span>
+                            <span class="mkr-color">WILD</span>&nbsp;&nbsp;&nbsp;<span>CLAIM</span></div>
                     </div>
                     <div class="mkr-assets-rates">Rates</div>
                     <div class="mkr-assets-deposit-apr">
                         <div class="mkr-color">Deposit APR (earn)</div>
                         <div>
-                            <span>+{ this.moneyFormat(isBuy ? state.lendingPair.tokenA.supplyRate : state.lendingPair.tokenB.supplyRate, 1)
-                                }%</span></div>
+                            <span id="apr-deposit-value">+32.5%&nbsp;</span></div>
                     </div>
                     <div class="mkr-assets-borrowed-apr">
                         <div class="mkr-color">Borrow APR (pay)</div>
                         <div>
-                            <span>-{ this.moneyFormat(isBuy ? state.lendingPair.tokenA.borrowRate : state.lendingPair.tokenB.borrowRate, 1)
-                                }%</span></div>
+                            <span id="apr-borrow-value">-32.5%</span></div>
                     </div>
                     <div class="mkr-assets-farming-apr">
                         <div class="mkr-color">Farming APR (earn)</div>
                         <div class="wild-reward">
                             <div class="logo"></div>
                             <div>
-                                +{ this.moneyFormat(isBuy ? state.lendingPair.tokenA.apr : state.lendingPair.tokenB.apr, 1)
-                                }%
+                                <span id="apr-farming-value">+76%</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <table class="no-border no-bg" if={ state.lendingPair === undefined }>
+            <tr class="loader-row no-border" each={ nothing in Array(3) }>
+                <td class="loader-box"></td>
+            </tr>
+        </table>
     </section>
 
     <script>
@@ -166,6 +168,8 @@
         import {LendingPair} from "../../common/pairs/LendingPair";
         import {BigNumber} from "bignumber.js";
         import {Erc20Token} from "../../common/contracts/Erc20Token";
+        import {FarmingPoolContract} from "../../common/contracts/FarmingPoolContract";
+        import {FarmingToken} from "../../common/pairs/FarmingToken";
 
         var isBuy = true;
 
@@ -182,101 +186,17 @@
                 tokenBBorrowLimit: new BigNumber(NaN),
                 newSafetyRatio: new BigNumber(NaN),
                 isLiquid: true,
-                ratio: 0
-            },
-            onMounted() {
-                isBuy = true;
-                this.setBorrowLimit()
-                this.updateTokenBalance()
-            },
-
-            onClickBuy() {
-                isBuy = true;
-                document.getElementById("btnbuy").classList.remove("unClickedButton");
-                document.getElementById("btnrepay").classList.add("unClickedButton");
-
-                document.getElementById("btndeposit").innerText = "DEPOSIT";
-                document.getElementById("btnborrow").innerText = "BORROW";
-                document.getElementById("input1").setAttribute("placeholder", "Deposit " + this.state.lendingPair.tokenB.displaySymbol());
-                document.getElementById("input2").setAttribute("placeholder", "Borrow " + this.state.lendingPair.tokenA.displaySymbol());
-
-                document.getElementById('input1').value = "";
-                document.getElementById('input2').value = "";
-
-                document.getElementById("banner1").innerText = "COLLATERAL";
-                document.getElementById("banner2").innerText = "BORROW";
-
-                document.getElementById("icon1_1").style.display = "flex";
-                document.getElementById("icon1_2").style.display = "none";
-
-                document.getElementById("icon2_1").style.display = "none";
-                document.getElementById("icon2_2").style.display = "flex";
-                document.getElementById("head-title").innerText = "Borrow";
-
-                console.log(isBuy);
-            },
-            onClickRepay() {
-                isBuy = false;
-                document.getElementById("btnbuy").classList.add("unClickedButton");
-                document.getElementById("btnrepay").classList.remove("unClickedButton");
-
-                document.getElementById("btndeposit").innerText = "REPAY";
-                document.getElementById("btnborrow").innerText = "WITHDRAW";
-                document.getElementById("input1").setAttribute("placeholder", "Repay " + this.state.lendingPair.tokenA.displaySymbol());
-                document.getElementById("input2").setAttribute("placeholder", "Withdraw " + this.state.lendingPair.tokenB.displaySymbol());
-
-                document.getElementById('input1').value = "";
-                document.getElementById('input2').value = "";
-
-                document.getElementById("banner1").innerText = "DEBT";
-                document.getElementById("banner2").innerText = "COLLATERAL";
-
-                document.getElementById("icon1_1").style.display = "none";
-                document.getElementById("icon1_2").style.display = "flex";
-
-                document.getElementById("icon2_1").style.display = "flex";
-                document.getElementById("icon2_2").style.display = "none";
-
-                document.getElementById("head-title").innerText = "Repay";
-                console.log(isBuy);
-            },
-            onUpdated() {
-                console.log("called here ======================= ");
-                if (isBuy) {
-                    document.getElementById("icon1_1").style.display = "flex";
-                    document.getElementById("icon1_2").style.display = "none";
-
-                    document.getElementById("icon2_1").style.display = "none";
-                    document.getElementById("icon2_2").style.display = "flex";
-                    document.getElementById("input1").setAttribute("placeholder", "Deposit " + this.state.lendingPair.tokenB.displaySymbol());
-                    document.getElementById("input2").setAttribute("placeholder", "Borrow " + this.state.lendingPair.tokenA.displaySymbol());
-                } else {
-                    document.getElementById("icon1_1").style.display = "none";
-                    document.getElementById("icon1_2").style.display = "flex";
-
-                    document.getElementById("icon2_1").style.display = "flex";
-                    document.getElementById("icon2_2").style.display = "none";
-                    document.getElementById("input1").setAttribute("placeholder", "Repay " + this.state.lendingPair.tokenA.displaySymbol());
-                    document.getElementById("input2").setAttribute("placeholder", "Withdraw " + this.state.lendingPair.tokenB.displaySymbol());
-                }
-
-
-            },
-            onBeforeMount() {
-
-                this.state.lendingPair = this.props.lendingPairs.find(this.props.pairAddress)
-                if (this.state.lendingPair) {
-                    this.fetchLiquidity(this.state.lendingPair.tokenA.address)
-                }
+                ratio: 0,
+                farmTokens: [],
+                showNonUniFarms: false,
+                farmingContract: new FarmingPoolContract()
             },
 
             async onBeforeUpdate() {
+                // this.buildFarms()
 
-                const totalUsdDebt = this.props.lendingPairs.pairs.map(p => p.usdTotalDebt).reduce((a, b) => a.plus(b))
-                const totalUsdSupply = this.props.lendingPairs.pairs.map(p => p.usdTotalSupply).reduce((a, b) => a.plus(b))
-                const totalUtilizationRatio = this.formatPercentage((totalUsdDebt / totalUsdSupply) * 100)
-                
-                this.state.ratio = totalUtilizationRatio
+
+                // this.state.ratio = totalUtilizationRatio
 
                 if (this.state.lendingPair === undefined) {
                     this.state.lendingPair = this.props.lendingPairs.find(this.props.pairAddress)
@@ -308,6 +228,154 @@
                         this.clearTokenWithdraw();
                     }
                 }
+
+            },
+            onUpdated() {
+
+                if (this.state.lendingPair !== undefined) {
+                    if (isBuy) {
+                        document.getElementById("icon1_1").style.display = "flex";
+                        document.getElementById("icon1_2").style.display = "none";
+
+                        document.getElementById("icon2_1").style.display = "none";
+                        document.getElementById("icon2_2").style.display = "flex";
+                        document.getElementById("input1").setAttribute("placeholder", "Deposit " + this.state.lendingPair.tokenB.displaySymbol());
+                        document.getElementById("input2").setAttribute("placeholder", "Borrow " + this.state.lendingPair.tokenA.displaySymbol());
+
+                        document.getElementById("collateral-value").innerText = this.state.lendingPair.tokenA.collateralFactor + " ";
+                        document.getElementById("borrowed-value").innerText = this.newBorrowed() + " ";
+                        document.getElementById("ratio-value").innerText = this.displayedSafetyRatio();
+                        document.getElementById("reward-value").innerText = this.moneyFormat(this.state.lendingPair.tokenA.pendingTotalReward) + " ";
+                        document.getElementById("apr-deposit-value").innerText = "+" + this.moneyFormat(this.state.lendingPair.tokenA.supplyRate) + "%";
+                        document.getElementById("apr-borrow-value").innerText = "-" + this.moneyFormat(this.state.lendingPair.tokenA.borrowRate) + "%";
+                        document.getElementById("apr-farming-value").innerText = "+" + this.moneyFormat(this.state.lendingPair.tokenA.borrowApr, 1) + "%";
+
+                    } else {
+                        document.getElementById("icon1_1").style.display = "none";
+                        document.getElementById("icon1_2").style.display = "flex";
+
+                        document.getElementById("icon2_1").style.display = "flex";
+                        document.getElementById("icon2_2").style.display = "none";
+                        document.getElementById("input1").setAttribute("placeholder", "Repay " + this.state.lendingPair.tokenA.displaySymbol());
+                        document.getElementById("input2").setAttribute("placeholder", "Withdraw " + this.state.lendingPair.tokenB.displaySymbol());
+
+
+                        document.getElementById("collateral-value").innerText = this.state.lendingPair.tokenB.collateralFactor + " ";
+                        document.getElementById("borrowed-value").innerText = this.newBorrowed() + " ";
+                        document.getElementById("ratio-value").innerText = this.displayedSafetyRatio();
+                        document.getElementById("reward-value").innerText = this.moneyFormat(this.state.lendingPair.tokenB.pendingTotalReward) + " ";
+                        document.getElementById("apr-deposit-value").innerText = "+" + this.moneyFormat(this.state.lendingPair.tokenB.supplyRate) + "%";
+                        document.getElementById("apr-borrow-value").innerText = "-" + this.moneyFormat(this.state.lendingPair.tokenB.borrowRate) + "%";
+                        document.getElementById("apr-farming-value").innerText = "+" + this.moneyFormat(this.state.lendingPair.tokenB.borrowApr, 1) + "%";
+                    }
+
+                }
+            },
+            onBeforeMount() {
+
+                this.buildFarms()
+                this.state.lendingPair = this.props.lendingPairs.find(this.props.pairAddress)
+                if (this.state.lendingPair) {
+                    this.fetchLiquidity(this.state.lendingPair.tokenA.address)
+                }
+
+            },
+            onMounted() {
+                if (this.state.lendingPair !== undefined) {
+                    isBuy = true;
+                    this.setBorrowLimit()
+                    this.updateTokenBalance()
+                }
+            },
+
+
+            buildFarms() {
+
+                this.state.farmTokens = []
+
+                for (let i = 0; i < this.props.lendingPairs.pairs.length; i++) {
+                    let pair = this.props.lendingPairs.pairs[i]
+                    if (!isNaN(pair.tokenA.tokenStakingPoolId)) {
+                        this.state.farmTokens.push({
+                            pair: pair,
+                            pairId: `${pair.tokenA.displaySymbol()}-${pair.tokenB.displaySymbol()}`,
+                            token: pair.tokenA
+                        })
+                    }
+                    if (!isNaN(pair.tokenB.tokenStakingPoolId)) {
+                        this.state.farmTokens.push({
+                            pair: pair,
+                            pairId: `${pair.tokenA.displaySymbol()}-${pair.tokenB.displaySymbol()}`,
+                            token: pair.tokenB
+                        })
+                    }
+                }
+            },
+
+            onClickBuy() {
+                isBuy = true;
+                document.getElementById("btnbuy").classList.remove("unClickedButton");
+                document.getElementById("btnrepay").classList.add("unClickedButton");
+
+                document.getElementById("btndeposit").innerText = "DEPOSIT";
+                document.getElementById("btnborrow").innerText = "BORROW";
+                document.getElementById("input1").setAttribute("placeholder", "Deposit " + this.state.lendingPair.tokenB.displaySymbol());
+                document.getElementById("input2").setAttribute("placeholder", "Borrow " + this.state.lendingPair.tokenA.displaySymbol());
+
+                document.getElementById('input1').value = "";
+                document.getElementById('input2').value = "";
+
+                document.getElementById("banner1").innerText = "COLLATERAL";
+                document.getElementById("banner2").innerText = "BORROW";
+
+                document.getElementById("icon1_1").style.display = "flex";
+                document.getElementById("icon1_2").style.display = "none";
+
+                document.getElementById("icon2_1").style.display = "none";
+                document.getElementById("icon2_2").style.display = "flex";
+                document.getElementById("head-title").innerText = "Borrow";
+
+                document.getElementById("collateral-value").innerText = this.state.lendingPair.tokenA.collateralFactor + " ";
+                document.getElementById("borrowed-value").innerText = this.newBorrowed() + " ";
+                document.getElementById("ratio-value").innerText = this.displayedSafetyRatio();
+                document.getElementById("reward-value").innerText = this.moneyFormat(this.state.lendingPair.tokenA.pendingTotalReward) + " ";
+                document.getElementById("apr-deposit-value").innerText = "+" + this.moneyFormat(this.state.lendingPair.tokenA.supplyRate) + "%";
+                document.getElementById("apr-borrow-value").innerText = "-" + this.moneyFormat(this.state.lendingPair.tokenA.borrowRate) + "%";
+                document.getElementById("apr-farming-value").innerText = "+" + this.moneyFormat(this.state.lendingPair.tokenA.borrowApr, 1) + "%";
+
+            },
+            onClickRepay() {
+                isBuy = false;
+                document.getElementById("btnbuy").classList.add("unClickedButton");
+                document.getElementById("btnrepay").classList.remove("unClickedButton");
+
+                document.getElementById("btndeposit").innerText = "REPAY";
+                document.getElementById("btnborrow").innerText = "WITHDRAW";
+                document.getElementById("input1").setAttribute("placeholder", "Repay " + this.state.lendingPair.tokenA.displaySymbol());
+                document.getElementById("input2").setAttribute("placeholder", "Withdraw " + this.state.lendingPair.tokenB.displaySymbol());
+
+                document.getElementById('input1').value = "";
+                document.getElementById('input2').value = "";
+
+                document.getElementById("banner1").innerText = "DEBT";
+                document.getElementById("banner2").innerText = "COLLATERAL";
+
+                document.getElementById("icon1_1").style.display = "none";
+                document.getElementById("icon1_2").style.display = "flex";
+
+                document.getElementById("icon2_1").style.display = "flex";
+                document.getElementById("icon2_2").style.display = "none";
+
+                document.getElementById("head-title").innerText = "Repay";
+
+
+                document.getElementById("collateral-value").innerText = this.state.lendingPair.tokenB.collateralFactor + " ";
+                document.getElementById("borrowed-value").innerText = this.newBorrowed() + " ";
+                document.getElementById("ratio-value").innerText = this.displayedSafetyRatio();
+                document.getElementById("reward-value").innerText = this.moneyFormat(this.state.lendingPair.tokenB.pendingTotalReward) + " ";
+                document.getElementById("apr-deposit-value").innerText = "+" + this.moneyFormat(this.state.lendingPair.tokenB.supplyRate) + "%";
+                document.getElementById("apr-borrow-value").innerText = "-" + this.moneyFormat(this.state.lendingPair.tokenB.borrowRate) + "%";
+                document.getElementById("apr-farming-value").innerText = "+" + this.moneyFormat(this.state.lendingPair.tokenB.borrowApr, 1) + "%";
 
             },
 
@@ -443,8 +511,10 @@
 
             displayedSafetyRatio() {
                 if (this.state.newSafetyRatio.isNaN()) {
+
                     return this.state.lendingPair.safetyRatio
                 }
+
                 return this.state.newSafetyRatio
             },
 
@@ -513,7 +583,8 @@
             },
 
             setMaxTokenDeposit() {
-
+                console.log("tokenA : ", this.state.lendingPair.tokenA);
+                console.log("tokenB : ", this.state.lendingPair.tokenB);
                 isBuy ? this.setTokenADeposit(this.getBalance(this.state.lendingPair.tokenA)) : this.setTokenBDeposit(this.getBalance(this.state.lendingPair.tokenB));
                 if (isBuy)
                     document.getElementById('input1').value = this.state.tokenADeposit.toString(10);
@@ -523,6 +594,8 @@
             },
 
             setMaxTokenWithdraw() {
+                console.log("tokenA : ", this.state.lendingPair.tokenA);
+                console.log("tokenB : ", this.state.lendingPair.tokenB);
                 if (isBuy) {
                     this.setTokenAWithdraw(this.state.lendingPair.tokenA.supplied)
                     document.getElementById('input2').value = this.state.lendingPair.tokenA.supplied.toString(10);
@@ -706,11 +779,13 @@
             },
 
             clearTokenDeposit() {
-                document.getElementById('input1').value = "";
+                if (document.getElementById("input1") !== null)
+                    document.getElementById('input1').value = "";
             },
 
             clearTokenWithdraw() {
-                document.getElementById('input2').value = "";
+                if (document.getElementById("input2") !== null)
+                    document.getElementById('input2').value = "";
                 //     document.getElementById(`reserve-${isBuy ? this.state.lendingPair.tokenA.symbol : this.state.lendingPair.tokenB.symbol}`).classList.remove("warning-text")
             },
 
@@ -742,12 +817,13 @@
             },
 
             updateTokenBalance() {
+                if (this.state.lendingPair !== undefined) {
+                    let token = this.getToken(isBuy ? this.state.lendingPair.tokenA : this.state.lendingPair.tokenB)
 
-                let token = this.getToken(isBuy ? this.state.lendingPair.tokenA : this.state.lendingPair.tokenB)
+                    if (token) {
 
-                if (token) {
-
-                    this.props.tokenList.refreshTokenInfo(token, accountAddress)
+                        this.props.tokenList.refreshTokenInfo(token, accountAddress)
+                    }
                 }
             },
 
@@ -772,274 +848,5 @@
         }
     </script>
 
-    <style>
-        * {
-            padding: 0;
-            margin: 0;
-            font-size: 14px;
-        }
-
-
-        .input-group {
-            display: flex;
-            flex-direction: row;
-            padding: 0.7rem;
-            align-items: center;
-        }
-
-        .input-group input {
-            color: #F7F7F7;
-            padding: 11px 53px 11px 13px;
-            width: 100%;
-            font-size: 13px;
-            line-height: 13px;
-            background: #292c3c;
-            border-top-left-radius: 3px;
-            border-bottom-left-radius: 3px;
-            height: 40px;
-
-        }
-
-        .input-group label {
-            color: #F7F7F7;
-            padding: 11px;
-
-            /*width: 100%;*/
-            font-size: 13px;
-            line-height: 13px;
-            background: #292c3c;
-            border-top-right-radius: 3px;
-            border-bottom-right-radius: 3px;
-            height: 40px;
-            text-align: center;
-
-        }
-
-        .simple-title {
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-start;
-            align-items: center;
-        }
-
-        .mkr-box {
-            border: 1px solid #2D303D;
-            width: 50%;
-            height: 100%;
-        }
-
-
-        .mkr-container {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            height: 50vh;
-            margin-top: 2rem;
-        }
-
-        .borrow-title {
-            font-size: 14px;
-            color: #F7F7F7;
-            padding: 10px 45px;
-            display: flex;
-            align-items: center;
-        }
-
-        .borrow-box {
-            display: flex;
-            flex-direction: column;
-            justify-content: stretch;
-        }
-
-        .borrow-box-header {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between
-        }
-
-        .borrow-box-header-left {
-            text-align: center;
-            flex: 1;
-            padding: 0.7rem;
-            font-size: 14px
-        }
-
-        .borrow-box-header-right {
-
-            flex: 1;
-            text-align: center;
-            padding: 0.7rem;
-            /*color: #6E7084;*/
-            font-size: 14px
-        }
-
-        .unClickedButton {
-            background-color: #474D65;
-            border-radius: 3px;
-            color: #6E7084;
-        }
-
-        .borrow-box-header-collateral {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .borrow-box-header-collateral-left {
-            color: #6E7084;
-            font-size: 12px;
-            padding: 0.7rem;
-        }
-
-        .borrow-box-header-collateral-right {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-around;
-            align-items: center;
-            font-size: 12px;
-            padding: 0.7rem;
-            /*margin-top: 1rem;*/
-
-        }
-
-        .borrow-box-header-collateral-text {
-            text-align: center;
-        }
-
-        .borrow-box-header-eth-input-field:empty:not(:focus):before {
-            content: attr(data-placeholder);
-            color: rgb(172, 172, 172);
-            width: 70%;
-        }
-
-        .borrow-box-header-eth-input {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 3px;
-            background-color: #232634;
-            padding: 0.7rem;
-            margin-left: 0.7rem;
-            margin-right: 0.7rem;
-
-        }
-
-        .borrow-box-header-eth-input-tag {
-            color: #6E6F84;
-        }
-
-        .borrow-box-button {
-            /*display: flex;*/
-            color: #F7F7F7;
-            background-color: #474D65;
-            border-radius: 3px;
-            text-align: center;
-            padding: 0.7rem;
-            margin-left: 0.7rem;
-            margin-right: 0.7rem;
-            margin-top: 1rem;
-        }
-
-        .mkr-assets {
-            display: flex;
-            flex-direction: column;
-            /*border: 1px solid #2D303D;*/
-            width: 50%;
-            height: 100%;
-            margin-left: 3rem;
-            color: #C2C3D5
-        }
-
-        .mkr-assets-header {
-            color: #C2C3D5;
-            text-align: left;
-        }
-
-        .mkr-assets-collateral {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            padding-bottom: 0.5rem;
-            padding-top: 0.5rem;
-            border-bottom: 1px solid #2D303D;
-            margin-top: 0.7rem;
-        }
-
-        .mkr-assets-borrowed {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            padding-bottom: 0.5rem;
-            padding-top: 0.5rem;
-            border-bottom: 1px solid #2D303D;
-            margin-top: 0.7rem;
-        }
-
-        .mkr-assets-ratio {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            padding-bottom: 0.5rem;
-            padding-top: 0.5rem;
-            border-bottom: 1px solid #2D303D;
-            margin-top: 0.7rem;
-        }
-
-        .mkr-assets-reward {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            padding-bottom: 0.5rem;
-            padding-top: 0.5rem;
-            margin-top: 0.7rem;
-            /*border-bottom: 1px solid #2D303D;*/
-        }
-
-        .mkr-assets-rates {
-            color: #C2C3D5;
-            text-align: left;
-            margin-top: 0.7rem;
-        }
-
-        .mkr-assets-deposit-apr {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            padding-bottom: 0.5rem;
-            padding-top: 0.5rem;
-            border-bottom: 1px solid #2D303D;
-            margin-top: 0.7rem;
-        }
-
-        .mkr-assets-borrowed-apr {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            padding-bottom: 0.5rem;
-            padding-top: 0.5rem;
-            border-bottom: 1px solid #2D303D;
-            margin-top: 0.7rem;
-        }
-
-        .mkr-assets-farming-apr {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            padding-bottom: 0.5rem;
-            padding-top: 0.5rem;
-            margin-top: 0.7rem;
-            /*border-bottom: 1px solid #2D303D;*/
-        }
-
-
-        .mkr-color {
-            color: #6E7084;
-        }
-
-
-    </style>
 
 </borrow-simple>

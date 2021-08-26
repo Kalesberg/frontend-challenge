@@ -5,7 +5,7 @@
 
         <div class="address-header">
             <div class="address-icon"></div>
-            <div class="address">0xa618...66dd</div>
+            <div class="address">{accountAddress}</div>
         </div>
 
         <div id="content">
@@ -25,6 +25,7 @@
                     <!--                            tokenList={ state.tokenList }-->
                     <!--                    />-->
                     <borrow-simple
+                            farmingLpTokens={ state.farmingLpToken }
                             lendingPairs={state.lendingPairs}
                             pairAddress={route.params.pairAddress}
                             showLendingPairs={showLendingPairs}
@@ -147,6 +148,7 @@
                 stakingContract: new StakingContract(),
                 feeConverterContract: new FeeConverter(),
                 farmingLpTokens: [],
+                farmingLpToken: null,
                 vaults: new Vaults()
             },
             async onMounted() {
@@ -199,7 +201,8 @@
 
                     this.state.farmingLpTokens = [
                         uniLp
-                    ]
+                    ];
+                    this.state.farmingLpToken = uniLp;
                 } catch (e) {
                     console.error("Failed to initialize Uni farming tokens")
                 }
